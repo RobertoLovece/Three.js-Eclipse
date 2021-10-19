@@ -144,21 +144,9 @@ function initObjects() {
     } );
 
     atmosphere = new THREE.Mesh( geometry, material );   
-    atmosphere.scale.set(1.3, 1.3, 1.3);
+    atmosphere.scale.set(1.5, 1.5, 1.5);
 
     scene.add(atmosphere);
-
-    var clearPlane = new THREE.Mesh(
-        new THREE.PlaneGeometry(2700, 2700),
-        new THREE.MeshBasicMaterial({
-            transparent: true,
-            color: 0x000000,
-            opacity: 0.1,
-        })
-    );
-    clearPlane.position.z = 10;
-
-    scene.add(clearPlane);
 }
 
 //
