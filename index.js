@@ -1,11 +1,24 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+// composer
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+
+// shaders
 import eclipseVertex from './src/shader/eclipseVertex.glsl';
 import eclipseFragment from './src/shader/eclipseFragment.glsl';
 import atmosphereVertex from './src/shader/atmosphereVertex.glsl';
 import atmosphereFragment from './src/shader/atmosphereFragment.glsl';
+
+//
+
+import { BLOOMPARAMS, FILMPARAMS } from './src/config.js';
+import { initGUI } from './src/GUI.js';
 
 //
 
@@ -14,19 +27,23 @@ require("./src/css/index.css");
 
 //
 
-let scene, camera, renderer, composer;
-let controls, container, eclipse, atmosphere;
-let stats;
+let scene, camera, renderer;
+let composer, bloomPass, filmPass;
+let controls, container, stats, clock;
+let eclipse, atmosphere;
 
 //
 
 window.onload = function () {
 
     initScene();
-    initStats();
+    initPostProcessing();
 
     initObjects();
     initControls();
+
+    initStats();
+    initGUI(bloomPass, filmPass);
 
     animate();
 
@@ -50,7 +67,7 @@ function initScene() {
         1000
     );
 
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize(width, height);
@@ -66,13 +83,41 @@ function initScene() {
 
 //
 
-function initStats() {
+function initPostProcessing() {
 
-    var axesHelper = new THREE.AxesHelper( 5 );
-    scene.add( axesHelper );
+    var exposure = 1;
+    renderer.toneMappingExposure = Math.pow(exposure, 4.0);
 
-    stats = new Stats();
-    document.body.appendChild(stats.dom);
+    composer = new EffectComposer(renderer);
+
+    var renderPass = new RenderPass(scene, camera);
+
+    // resolution, strength, radius, threshold
+    bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+	
+    bloomPass.strength = BLOOMPARAMS.bloomStrength;
+    bloomPass.threshold = BLOOMPARAMS.bloomThreshold;
+	bloomPass.radius = BLOOMPARAMS.bloomRadius;
+
+    var smaaPass = new SMAAPass( window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio() );
+
+    // noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale
+    filmPass = new FilmPass(
+        FILMPARAMS.noiseIntensity,   
+        FILMPARAMS.scanlinesIntensity,  
+        FILMPARAMS.scanlinesCount,
+        FILMPARAMS.grayscale,  
+    );
+
+    renderPass.renderToScreen = false;
+    bloomPass.renderToScreen = false;
+    smaaPass.renderToScreen = true;
+    filmPass.renderToScreen = false;
+
+    composer.addPass(renderPass);
+    composer.addPass(bloomPass);
+    composer.addPass(smaaPass);
+    composer.addPass(filmPass);
 
 }
 
@@ -80,7 +125,7 @@ function initStats() {
 
 function initObjects() {
 
-    var geometry = new THREE.SphereGeometry(1, 32, 32);
+    var geometry = new THREE.SphereGeometry(1, 128, 128);
     var material = new THREE.ShaderMaterial( { 
         color: 0x000000,
         vertexShader: eclipseVertex,
@@ -90,18 +135,30 @@ function initObjects() {
     
     scene.add( eclipse )
 
-    geometry = new THREE.SphereGeometry(1, 32, 32);
+    geometry = new THREE.SphereGeometry(1, 128, 128);
     material = new THREE.ShaderMaterial( { 
         vertexShader: atmosphereVertex,
         fragmentShader: atmosphereFragment,
-        blending: THREE.AdditiveBlending,
+        // blending: THREE.AdditiveBlending,
         side: THREE.BackSide
     } );
 
     atmosphere = new THREE.Mesh( geometry, material );   
-    atmosphere.scale.set(1.1, 1.1, 1.1);
+    atmosphere.scale.set(1.3, 1.3, 1.3);
 
     scene.add(atmosphere);
+
+    var clearPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(2700, 2700),
+        new THREE.MeshBasicMaterial({
+            transparent: true,
+            color: 0x000000,
+            opacity: 0.1,
+        })
+    );
+    clearPlane.position.z = 10;
+
+    scene.add(clearPlane);
 }
 
 //
@@ -118,13 +175,28 @@ function initControls() {
 
 //
 
+function initStats() {
+
+    var axesHelper = new THREE.AxesHelper( 5 );
+    scene.add( axesHelper );
+
+    stats = new Stats();
+    document.body.appendChild(stats.dom);
+
+    clock = new THREE.Clock();
+}
+
+//
+
 function animate() {
     requestAnimationFrame(animate);
 
     controls.update();
     stats.update();
 
-    renderer.render(scene, camera);
+    // renderer.render(scene, camera);
+    var delta = clock.getDelta();
+    composer.render(delta);
 }
 
 //
@@ -147,6 +219,8 @@ function onWindowResize() {
 
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize(width, height);
+    composer.setPixelRatio(window.devicePixelRatio);
+    composer.setSize(width, height);
 }
 
 //
