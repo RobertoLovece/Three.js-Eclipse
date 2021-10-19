@@ -2,9 +2,10 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
-//
-
-import Shape from './src/utilities/shape.js';
+import eclipseVertex from './src/shader/eclipseVertex.glsl';
+import eclipseFragment from './src/shader/eclipseFragment.glsl';
+import atmosphereVertex from './src/shader/atmosphereVertex.glsl';
+import atmosphereFragment from './src/shader/atmosphereFragment.glsl';
 
 //
 
@@ -13,8 +14,8 @@ require("./src/css/index.css");
 
 //
 
-let scene, camera, renderer;
-let controls, container, shapes;
+let scene, camera, renderer, composer;
+let controls, container, eclipse, atmosphere;
 let stats;
 
 //
@@ -79,15 +80,28 @@ function initStats() {
 
 function initObjects() {
 
-    shapes = [];
+    var geometry = new THREE.SphereGeometry(1, 32, 32);
+    var material = new THREE.ShaderMaterial( { 
+        color: 0x000000,
+        vertexShader: eclipseVertex,
+        fragmentShader: eclipseFragment,
+    } );
+    eclipse = new THREE.Mesh( geometry, material );   
+    
+    scene.add( eclipse )
 
-    shapes.push(
-        new Shape(0, 0, 2)
-    );
+    geometry = new THREE.SphereGeometry(1, 32, 32);
+    material = new THREE.ShaderMaterial( { 
+        vertexShader: atmosphereVertex,
+        fragmentShader: atmosphereFragment,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide
+    } );
 
-    shapes.forEach(function (shape) {
-        scene.add(shape);
-    });
+    atmosphere = new THREE.Mesh( geometry, material );   
+    atmosphere.scale.set(1.1, 1.1, 1.1);
+
+    scene.add(atmosphere);
 }
 
 //
@@ -106,10 +120,6 @@ function initControls() {
 
 function animate() {
     requestAnimationFrame(animate);
-
-    shapes.forEach(function (shape) {
-        shape.update();
-    });
 
     controls.update();
     stats.update();
@@ -142,5 +152,5 @@ function onWindowResize() {
 //
 
 function onClick(e) {
-    console.log(geometry.attributes.normal);
+    
 }   
