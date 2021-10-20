@@ -17,23 +17,23 @@ export function initGUI(bloomPass, filmPass) {
         bloomPass.radius = BLOOMPARAMS.bloomRadius;
     });
 
-    const filmFolder = gui.addFolder('Film');
-    filmFolder.add(FILMPARAMS, "noiseIntensity", 0, 1.0).onChange(function() {
-        filmPass.noiseIntensity = FILMPARAMS.noiseIntensity;
-        filmPass.uniforms.noiseIntensity = FILMPARAMS.noiseIntensity;
-    });
-    filmFolder.add(FILMPARAMS, "scanlinesIntensity", 0, 1.0).onChange(function() {
-        filmPass.scanlinesIntensity = FILMPARAMS.scanlinesIntensity;
-        filmPass.uniforms.scanlinesIntensity = FILMPARAMS.scanlinesIntensity;
-    });
-    filmFolder.add(FILMPARAMS, "scanlinesCount", 0, 10000).onChange(function() {
-        filmPass.scanlinesCount = FILMPARAMS.scanlinesCount;
-        filmPass.uniforms.scanlinesCount = FILMPARAMS.scanlinesCount;
-    });
-    filmFolder.add(FILMPARAMS, "grayscale").onChange(function() {
-        filmPass.grayscale = FILMPARAMS.grayscale
-        console.log(filmPass.uniforms);
-        filmPass.uniforms.grayscale = FILMPARAMS.grayscale;
-    });
+    // const filmFolder = gui.addFolder('Film');
+    // filmFolder.add(FILMPARAMS, "noiseIntensity", 0, 1.0).onChange(function() {
+    //     filmPass.noiseIntensity = FILMPARAMS.noiseIntensity;
+    //     filmPass.uniforms.noiseIntensity = FILMPARAMS.noiseIntensity;
+    // });
+    // filmFolder.add(FILMPARAMS, "scanlinesIntensity", 0, 1.0).onChange(function() {
+    //     filmPass.scanlinesIntensity = FILMPARAMS.scanlinesIntensity;
+    //     filmPass.uniforms.scanlinesIntensity = FILMPARAMS.scanlinesIntensity;
+    // });
+    // filmFolder.add(FILMPARAMS, "scanlinesCount", 0, 10000).onChange(function() {
+    //     filmPass.scanlinesCount = FILMPARAMS.scanlinesCount;
+    //     filmPass.uniforms.scanlinesCount = FILMPARAMS.scanlinesCount;
+    // });
+    // filmFolder.add(FILMPARAMS, "grayscale").onChange(function() {
+    //     filmPass.grayscale = FILMPARAMS.grayscale
+    //     console.log(filmPass.uniforms);
+    //     filmPass.uniforms.grayscale = FILMPARAMS.grayscale;
+    // });
     gui.open();
 }
