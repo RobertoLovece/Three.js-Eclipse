@@ -152,7 +152,7 @@ function initObjects() {
 
     scene.add(atmosphere);
 
-    stars = new Stars(3000).stars;
+    stars = new Stars(3000);
     
     scene.add(stars);
 }

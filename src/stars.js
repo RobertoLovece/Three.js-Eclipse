@@ -4,7 +4,7 @@ import Cross from './texture/cross.png';
 const loader = new THREE.TextureLoader();
 const cross = loader.load(Cross);
 
-export default class Stars extends THREE.Object3D {
+export default class Stars extends THREE.Points {
     constructor(starNumber) {
         
         super();
@@ -28,7 +28,6 @@ export default class Stars extends THREE.Object3D {
         }
 
         this.geometry.setAttribute('position', new THREE.BufferAttribute(this.posArray, 3));
-
-        this.stars = new THREE.Points(this.geometry, this.material);
+        
     }
 }
