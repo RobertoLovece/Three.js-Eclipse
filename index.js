@@ -22,6 +22,10 @@ import { initGUI } from './src/GUI.js';
 
 //
 
+import Stars from './src/stars.js'
+
+//
+
 require('normalize.css/normalize.css');
 require("./src/css/index.css");
 
@@ -30,7 +34,7 @@ require("./src/css/index.css");
 let scene, camera, renderer;
 let composer, bloomPass, filmPass;
 let controls, container, stats, clock;
-let eclipse, atmosphere;
+let eclipse, atmosphere, stars;
 
 //
 
@@ -74,9 +78,9 @@ function initScene() {
 
     container.appendChild(renderer.domElement);
 
-    camera.position.z = 5;
-    camera.position.x = 4;
-    camera.position.y = 3;
+    camera.position.x = 2.83;
+    camera.position.y = 0.55;
+    camera.position.z = 1.52;
     camera.lookAt(0,0,0)
 
 }
@@ -144,9 +148,13 @@ function initObjects() {
     } );
 
     atmosphere = new THREE.Mesh( geometry, material );   
-    atmosphere.scale.set(1.5, 1.5, 1.5);
+    atmosphere.scale.set(1.2, 1.2, 1.2);
 
     scene.add(atmosphere);
+
+    stars = new Stars(3000).stars;
+    
+    scene.add(stars);
 }
 
 //
@@ -165,8 +173,8 @@ function initControls() {
 
 function initStats() {
 
-    var axesHelper = new THREE.AxesHelper( 5 );
-    scene.add( axesHelper );
+    // var axesHelper = new THREE.AxesHelper( 5 );
+    // scene.add( axesHelper );
 
     stats = new Stats();
     document.body.appendChild(stats.dom);
@@ -181,6 +189,9 @@ function animate() {
 
     controls.update();
     stats.update();
+
+    var damp = 0.008;
+    stars.rotation.y += -.1 * damp;
 
     // renderer.render(scene, camera);
     var delta = clock.getDelta();
@@ -214,5 +225,5 @@ function onWindowResize() {
 //
 
 function onClick(e) {
-    
+    console.log(camera.position)
 }   

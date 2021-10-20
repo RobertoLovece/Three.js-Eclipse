@@ -7,7 +7,7 @@ export function initGUI(bloomPass, filmPass) {
     const gui = new dat.GUI();
     const bloomFolder = gui.addFolder('Bloom');
 
-    bloomFolder.add(BLOOMPARAMS, "bloomStrength", 0, 5.0).onChange(function() {
+    bloomFolder.add(BLOOMPARAMS, "bloomStrength", 0, 2.0).onChange(function() {
         bloomPass.strength = BLOOMPARAMS.bloomStrength;
     });
     bloomFolder.add(BLOOMPARAMS, "bloomThreshold", 0, 1.0).onChange(function() {
