@@ -22,7 +22,7 @@ import { initGUI } from './src/GUI.js';
 
 //
 
-import Stars from './src/stars.js'
+import Stars from './src/stars/stars.js'
 
 //
 
